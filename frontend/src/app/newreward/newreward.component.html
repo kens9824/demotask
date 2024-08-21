@@ -1,0 +1,17 @@
+<div>
+    <label for="mySelect">Choose an option:</label>
+    <select id="mySelect" [(ngModel)]="selectedOption">
+      <option *ngFor="let option of options" [value]="option.value">{{ option.label }}</option>
+    </select>
+  </div>
+  <div>
+    <input type="number" id="name" [(ngModel)]="points"><br>
+  </div>
+  <br>
+  <div>
+    <label for="a">Point balance</label><p>100</p>
+    
+  </div>
+<button (click)="Submit()">Submit</button>
+<button (click)="Cancel()">Cancel</button>
+

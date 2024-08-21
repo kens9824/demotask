@@ -1,0 +1,19 @@
+{
+  "type": "mysql",
+  "host": "sql12.freesqldatabase.com",
+  "port": 3306,
+  "username": "sql12727062",
+  "password": "Ab9THfFTl6",
+  "database": "sql12727062",
+  "synchronize": false,
+  "logging": false,
+  "entities": [
+    "dist/entity/**/*.js"
+  ],
+  "cli": {
+    "entitiesDir": "./src/entity",
+    "migrationsDir": "./src/migration",
+    "subscribersDir": "./src/subscriber"
+  },
+  "ssl": false
+}

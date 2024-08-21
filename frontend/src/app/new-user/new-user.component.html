@@ -1,0 +1,6 @@
+<input type="text" id="name" [(ngModel)]="name">
+
+<button (click)="Save()">Save</button>
+<button (click)="Cancel()">Cancel</button>
+<button *ngIf="this.id" (click)="goTop5()">P5 Balance</button>
+<button *ngIf="this.id" (click)="goTorewards()">Reward balance</button>
