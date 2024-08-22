@@ -8,6 +8,8 @@ import { NewUserComponent } from './new-user/new-user.component';
 import { P5Component } from './p5/p5.component';
 import { RewardComponent } from './reward/reward.component';
 import { NewRewardComponent } from './newreward/newreward.component';
+import { HttpClientModule } from '@angular/common/http';
+
 
 
 @NgModule({
@@ -22,6 +24,7 @@ import { NewRewardComponent } from './newreward/newreward.component';
   imports: [
     BrowserModule,
     FormsModule, 
+    HttpClientModule,
     AppRoutingModule
   ],
   providers: [],

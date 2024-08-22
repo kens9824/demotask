@@ -1,5 +1,5 @@
 
-<p>this is Reward component</p>
+<p>Reward</p>
 
 <table>
     <tr>
@@ -9,10 +9,10 @@
         <th>UserName</th>
     </tr>
     
-    <tr>
-        <td>1</td>
-        <td>Kenil</td>
-        <td>100</td>
-        <td>0</td>
+    <tr *ngFor="let d of this.lists">
+        <td>{{d.id}}</td>
+        <td>{{d.datetime}}</td>
+        <td>{{d.points}}</td>
+        <td>{{d.sender}}</td>
     </tr>
 </table>

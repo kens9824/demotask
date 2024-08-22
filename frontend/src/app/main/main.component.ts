@@ -1,5 +1,9 @@
 import { Component,  OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment'
+import { HttpClient } from '@angular/common/http';
+
+
 
 
 // Import the AuthService type from the SDK
@@ -10,24 +14,24 @@ import { Router } from '@angular/router';
   styleUrls: ['./main.component.scss'],
 })
 export class MainComponent implements OnInit {
+  baseUrl = environment.baseUrl;
+  lists: any = [];
 
-  constructor(private router: Router) {
-
+  constructor(private router: Router,private http: HttpClient) {
   }
   ngOnInit(): void {
-
+    this.http.get(this.baseUrl + 'reward').subscribe((data:any) => {
+      this.lists = data;
+    })
   }
 
-  Login(){
-    // console.log(123);
-    this.router.navigateByUrl('/123');
+  Login(id:string){
+    this.router.navigateByUrl('/' + id);
     
   }
 
   newUser(){
-    // console.log(123);
     this.router.navigateByUrl('/new');
-    
   }
  
 }

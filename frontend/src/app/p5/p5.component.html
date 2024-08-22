@@ -1,21 +1,21 @@
 
-<p>this is p5 component</p>
+<p>P5</p>
 <button (click)="newReward()">New Reward</button>
 
 <table>
     <tr>
-        <th>#</th>
+        <th>id</th>
         <th>DateTime</th>
         <th>P5 balance</th>
         <th>UserName</th>
         <th>Delete</th>
     </tr>
     
-    <tr>
-        <td>1</td>
-        <td>Kenil</td>
-        <td>100</td>
-        <td>0</td>
-        <td><button (click)="Login()">Delete</button></td>
+    <tr *ngFor="let d of this.lists">
+        <td>{{d.id}}</td>
+        <td>{{d.datetime}}</td>
+        <td>{{d.points}}</td>
+        <td>{{d.receiver}}</td>
+        <td><button *ngIf ="d.points != 100" (click)="onDelete(d.id)">Delete</button></td>
     </tr>
 </table>

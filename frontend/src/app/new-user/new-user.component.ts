@@ -1,6 +1,8 @@
 import { Component,  OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { environment } from '../../environments/environment'
+import { HttpClient } from '@angular/common/http';
 
 
 // Import the AuthService type from the SDK
@@ -12,31 +14,45 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class NewUserComponent implements OnInit {
   name: string = '';
+  baseUrl = environment.baseUrl;
   id;
-  constructor(private route: ActivatedRoute,private router: Router,private formBuilder: FormBuilder,) {
+  
+  constructor(private route: ActivatedRoute,private router: Router,private http: HttpClient) {
     this.id = this.route.snapshot.paramMap.get('id');
     if(this.id) {
-    console.log(this.id);
+    this.http.get(this.baseUrl + 'user/' + this.id).subscribe((data:any) => {
+      this.name = data.name
+    })
     }
     
   }
   ngOnInit(): void {}
   Save(){
-    console.log("Save",this.name);
+    var data:any = {
+      name : this.name
+    }
+    if(this.id) {
+      data['id'] = this.id;
 
-    this.router.navigateByUrl('/');
-    
+      this.http.patch(this.baseUrl + 'user',data).subscribe((data:any) => {
+        this.router.navigateByUrl('/');
+      })
+    }
+    else{
+      this.http.post(this.baseUrl + 'user',data).subscribe((data:any) => {
+        this.router.navigateByUrl('/');
+      })
+    }    
   }
   Cancel(){
     this.router.navigateByUrl('/');
     
   }
   goTop5(){
-    this.router.navigateByUrl('/123/p5');
+    this.router.navigateByUrl('/'+ this.id + '/p5');
     
   }
   goTorewards(){
-    this.router.navigateByUrl('/123/rewards');
-    
+    this.router.navigateByUrl('/'+ this.id + '/rewards');
   }
 }

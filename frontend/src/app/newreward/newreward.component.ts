@@ -1,6 +1,8 @@
-import { Component,  OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { environment } from '../../environments/environment'
+import { HttpClient } from '@angular/common/http';
 
 
 // Import the AuthService type from the SDK
@@ -12,32 +14,37 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class NewRewardComponent implements OnInit {
   points: number = 0;
-
-  options = [
-    { value: 'option1', label: 'Option 1' },
-    { value: 'option2', label: 'Option 2' },
-    { value: 'option3', label: 'Option 3' }
-  ];
+  baseUrl = environment.baseUrl;
+  lists: any = [];
   selectedOption: string = '';
   id
-  constructor(private route: ActivatedRoute,private router: Router,private formBuilder: FormBuilder,) {
+
+  constructor(private route: ActivatedRoute, private router: Router, private http: HttpClient) {
     this.id = this.route.snapshot.paramMap.get('id');
-    if(this.id) {
-    console.log(this.id);
+    if (this.id) {
+      this.http.get(this.baseUrl + 'user/self/' + this.id).subscribe((data: any) => {
+        this.lists = data;
+      })
     }
-    
+
   }
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
 
-  Submit(){
-    // console.log(123);
-    // this.router.navigateByUrl('/new');
-    
+  Submit() {
+    var data = {
+      points: Number(this.points),
+      givenby: Number(this.id),
+      givento: Number(this.selectedOption)
+    }
+
+    this.http.post(this.baseUrl + 'reward', data).subscribe((data: any) => {
+      this.router.navigateByUrl('/');
+    })
   }
-  Cancel(){
+  
+  Cancel() {
     this.router.navigateByUrl('/');
-    
   }
 
 }

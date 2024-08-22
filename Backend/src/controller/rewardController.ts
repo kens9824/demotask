@@ -55,17 +55,29 @@ export const getReward = async (req: Request, res: Response) => {
         
         const rewards = await rewardRepository.createQueryBuilder('reward')
         .select([
-            'user.name AS userName',
-            'SUM(CASE WHEN reward.givenById IS NULL THEN reward.points ELSE 0 END) - SUM(CASE WHEN reward.givenById IS NOT NULL THEN reward.points ELSE 0 END) AS p5',
-            'SUM(CASE WHEN reward.givenToId = user.id AND reward.givenById IS NOT NULL THEN reward.points ELSE 0 END) AS reward' // Rewards received from other users
+            'user.id AS id',
+            'user.name AS name',
+            // p5: points given initially (where givenById IS NULL) minus points transferred out (where givenById = user.id)
+            'SUM(CASE WHEN reward.givenById IS NULL THEN reward.points ELSE 0 END) AS totalPointsGiven',
+            'SUM(CASE WHEN reward.givenById = user.id THEN reward.points ELSE 0 END) AS pointsTransferredOut',
+            // reward: points received from other users
+            'SUM(CASE WHEN reward.givenToId = user.id AND reward.givenById IS NOT NULL THEN reward.points ELSE 0 END) AS reward'
         ])
-        .leftJoin(User, 'user', 'reward.givenToId = user.id')
-        .groupBy('user.name')
+        .leftJoin(User, 'user', 'reward.givenToId = user.id OR reward.givenById = user.id')
+        .groupBy('user.id')
         .getRawMany();
 
 
+        const formattedRewards = rewards.map((reward) => ({
+            id: reward.id,
+            name: reward.name,
+            p5: reward.totalPointsGiven - reward.pointsTransferredOut,
+            reward: reward.reward
+        }));
+
+
         // const rewards = await RewardHistory.find();
-        return res.status(200).json(rewards);
+        return res.status(200).json(formattedRewards);
 
     } catch (error) {
         return InternalServerError(res, error);
@@ -76,13 +88,69 @@ export const getReward = async (req: Request, res: Response) => {
 export const deleteReward = async (req: Request, res: Response) => {
     try {
 
-    const { id } = req.body;
+    const { id } = req.params;
     const repository = getRepository(RewardHistory);
     const recordToDelete = await repository.findOne(id);
     if (recordToDelete) {
         await repository.remove(recordToDelete);
     }
         return res.status(200).json({message: "Reward record deleted"});
+
+    } catch (error) {
+        return InternalServerError(res, error);
+    }
+}
+
+export const getP5ByUserId = async (req: Request, res: Response) => {
+    try {
+
+    const { id } = req.params;
+    const rewardRepository = getRepository(RewardHistory);
+    
+    const transactionHistory = await rewardRepository.createQueryBuilder('reward')
+
+        .select([
+            'reward.id as id',
+            'reward.points as points',
+            'reward.datetime as datetime',
+            'giver.name AS sender',
+            'receiver.name AS receiver'
+        ])
+        .leftJoin(User, 'giver', 'reward.givenById = giver.id')
+        .leftJoin(User, 'receiver', 'reward.givenToId = receiver.id')
+        .where('reward.givenById = :userId OR (reward.givenById IS NULL AND reward.givenToId = :userId)', { userId:id })
+        .orderBy('reward.datetime', 'ASC')  // Order by datetime to get the transaction history in sequence
+        .getRawMany();
+    return res.status(200).json(transactionHistory);
+
+
+    } catch (error) {
+        return InternalServerError(res, error);
+    }
+}
+
+export const getRewardByUserId = async (req: Request, res: Response) => {
+    try {
+
+    const { id } = req.params;
+    const rewardRepository = getRepository(RewardHistory);
+    
+    const transactionHistory = await rewardRepository.createQueryBuilder('reward')
+
+        .select([
+            'reward.id as id',
+            'reward.points as points',
+            'reward.datetime as datetime',
+            'giver.name AS sender',
+            'receiver.name AS receiver'
+        ])
+        .leftJoin(User, 'giver', 'reward.givenById = giver.id')
+        .leftJoin(User, 'receiver', 'reward.givenToId = receiver.id')
+        .where('reward.givenToId = :userId AND (reward.givenById IS Not NULL)', { userId:id })
+        .orderBy('reward.datetime', 'ASC')  // Order by datetime to get the transaction history in sequence
+        .getRawMany();
+    return res.status(200).json(transactionHistory);
+
 
     } catch (error) {
         return InternalServerError(res, error);

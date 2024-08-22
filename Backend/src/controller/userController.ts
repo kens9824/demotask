@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { compare, hash } from "bcryptjs";
 import { RequestFailed } from '../response/RequestFailedResponse';
 import { User } from '../entity/user';
 import { InternalServerError } from '../response/InternalServerErrorResponse';
 import { RewardHistory } from '../entity/rewardhistory';
+import { Not } from 'typeorm';
 
 
 
@@ -89,9 +89,46 @@ export const editUser = async (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
-
+   
+        
         const user = await User.find();
         return res.status(200).json(user);
+
+    } catch (error) {
+        return InternalServerError(res, error);
+    }
+
+}
+
+export const getUserById = async (req: Request, res: Response) => {
+    try {
+        const {
+            id
+        } = req.params;
+        
+        const user = await User.findOne({
+            where: { id: id }
+        });
+        return res.status(200).json(user);
+
+    } catch (error) {
+        return InternalServerError(res, error);
+    }
+
+}
+
+export const getAllUserWithoutSelf = async (req: Request, res: Response) => {
+    try {
+        const {
+            id
+        } = req.params;
+        
+        const users = await User.find({
+            where: {
+                id: Not(id)
+            }
+        });
+        return res.status(200).json(users);
 
     } catch (error) {
         return InternalServerError(res, error);
